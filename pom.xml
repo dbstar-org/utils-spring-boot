@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.yeecloud.commons.utils</groupId>
+    <artifactId>SPRING</artifactId>
+    <version>1.0.0</version>
+  </parent>
+  <artifactId>utils-spring-boot</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <properties>
+    <version.spring.boot>1.5.19.RELEASE</version.spring.boot>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot</artifactId>
+      <version>${version.spring.boot}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.yeecloud.commons.utils</groupId>
+      <artifactId>utils-lang</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+</project>
