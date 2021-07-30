@@ -1,30 +1,57 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.yeecloud.commons.utils</groupId>
-    <artifactId>SPRING</artifactId>
-    <version>1.0.0</version>
+    <groupId>io.github.dbstarll.parent</groupId>
+    <artifactId>base</artifactId>
+    <version>1.1.9</version>
   </parent>
+  <groupId>io.github.dbstarll</groupId>
   <artifactId>utils-spring-boot</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
+
+  <description>utils for spring boot</description>
+  <url>https://github.com/dbstarll/utils-spring-boot</url>
+
+  <scm>
+    <connection>scm:git:${project.git.git.root}</connection>
+    <developerConnection>scm:git:${project.git.web.root}</developerConnection>
+    <url>${project.git.web.master}</url>
+    <tag>HEAD</tag>
+  </scm>
 
   <properties>
-    <version.spring.boot>1.5.19.RELEASE</version.spring.boot>
+    <project.git.project>utils-spring-boot</project.git.project>
+    <version.spring-boot>2.5.3</version.spring-boot>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot</artifactId>
+        <version>${version.spring-boot}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot</artifactId>
-      <version>${version.spring.boot}</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>com.yeecloud.commons.utils</groupId>
-      <artifactId>utils-lang</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-    </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>site-local</id>
+      <distributionManagement>
+        <site>
+          <id>local</id>
+          <url>${project.site.root.project}</url>
+        </site>
+      </distributionManagement>
+    </profile>
+  </profiles>
 </project>
