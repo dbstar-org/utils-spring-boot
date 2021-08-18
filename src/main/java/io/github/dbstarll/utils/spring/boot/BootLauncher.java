@@ -18,12 +18,18 @@ public abstract class BootLauncher {
         return builder(builder(groupId, artifactId, getClass())).run(args);
     }
 
-    protected SpringApplicationBuilder builder(SpringApplicationBuilder builder) {
+    /**
+     * 重载此方法来配置SpringApplicationBuilder.
+     *
+     * @param builder SpringApplicationBuilder
+     * @return 配置后的SpringApplicationBuilder
+     */
+    protected SpringApplicationBuilder builder(final SpringApplicationBuilder builder) {
         return builder;
     }
 
-    protected static final SpringApplicationBuilder builder(final String groupId, final String artifactId,
-                                                            final Class<?>... sources) throws IOException {
+    private static SpringApplicationBuilder builder(final String groupId, final String artifactId,
+                                                    final Class<?>... sources) throws IOException {
         System.setProperty("spring.config.name", getSpringConfigName(groupId, artifactId));
         System.setProperty("spring.config.location", getSpringConfigLocation(groupId, artifactId));
         System.setProperty("spring.cloud.bootstrap.name", getSpringCloudBootstrapName(groupId, artifactId));
