@@ -6,9 +6,9 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class BootLauncher {
     private static final String BOOTSTRAP_POSTFIX = "-bootstrap";
@@ -29,12 +29,12 @@ public abstract class BootLauncher {
     }
 
     private static SpringApplicationBuilder builder(final String groupId, final String artifactId,
-                                                    final Class<?>... sources) throws IOException {
+                                                    final Class<?>... sources) {
         System.setProperty("spring.config.name", getSpringConfigName(groupId, artifactId));
-        System.setProperty("spring.config.location", getSpringConfigLocation(groupId, artifactId));
+        System.setProperty("spring.config.additional-location", getSpringConfigLocation(groupId, artifactId));
         System.setProperty("spring.cloud.bootstrap.name", getSpringCloudBootstrapName(groupId, artifactId));
-        System.setProperty("spring.cloud.bootstrap.location", getSpringCloudBootstrapLocation(groupId, artifactId));
-        return new SpringApplicationBuilder(sources).properties(hostnameProperties()).bannerMode(Mode.OFF);
+        System.setProperty("spring.cloud.bootstrap.additional-location", getSpringCloudBootstrapLocation(groupId, artifactId));
+        return new SpringApplicationBuilder(sources).bannerMode(Mode.OFF);
     }
 
     private static String getSpringConfigName(final String groupId, final String artifactId) {
@@ -43,8 +43,8 @@ public abstract class BootLauncher {
 
     private static String getSpringConfigLocation(final String groupId, final String artifactId) {
         final List<String> configs = new ArrayList<String>(3);
-        configs.add("file:/etc/" + groupId + "/");
-        configs.add("file:${user.home}/." + groupId + "/");
+        configs.add("optional:file:/etc/" + groupId + "/");
+        configs.add("optional:file:${user.home}/." + groupId + "/");
         if (System.getProperty(artifactId + ".config") != null) {
             configs.add("${" + artifactId + ".config}");
         }
@@ -63,11 +63,5 @@ public abstract class BootLauncher {
             configs.add("${" + artifactId + BOOTSTRAP_POSTFIX + ".config}");
         }
         return StringUtils.join(configs, ',');
-    }
-
-    private static Map<String, Object> hostnameProperties() throws UnknownHostException {
-        final Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put("localhost.hostname", Inet4Address.getLocalHost().getHostName());
-        return properties;
     }
 }
