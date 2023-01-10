@@ -57,8 +57,8 @@ public abstract class BootLauncher {
 
     private static String getSpringCloudBootstrapLocation(final String groupId, final String artifactId) {
         final List<String> configs = new ArrayList<String>(3);
-        configs.add("file:/etc/" + groupId + "/");
-        configs.add("file:${user.home}/." + groupId + "/");
+        configs.add("optional:file:/etc/" + groupId + "/");
+        configs.add("optional:file:${user.home}/." + groupId + "/");
         if (System.getProperty(artifactId + BOOTSTRAP_POSTFIX + ".config") != null) {
             configs.add("${" + artifactId + BOOTSTRAP_POSTFIX + ".config}");
         }
