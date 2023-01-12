@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.github.dbstarll.parent</groupId>
     <artifactId>base</artifactId>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
   </parent>
   <groupId>io.github.dbstarll.utils</groupId>
   <artifactId>utils-spring-boot</artifactId>
