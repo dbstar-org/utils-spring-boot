@@ -5,16 +5,17 @@ import org.springframework.boot.Banner.Mode;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public abstract class BootLauncher {
     private static final String BOOTSTRAP_POSTFIX = "-bootstrap";
+    private static final String ADDITIONAL_LOCATION = "spring.config.additional-location";
+    private static final String BOOTSTRAP_ADDITIONAL_LOCATION = "spring.cloud.bootstrap.additional-location";
 
     protected final ConfigurableApplicationContext run(final String groupId, final String artifactId,
-                                                       final String... args) throws IOException {
+                                                       final String... args) {
         return builder(builder(groupId, artifactId, getClass())).run(args);
     }
 
@@ -31,9 +32,9 @@ public abstract class BootLauncher {
     private static SpringApplicationBuilder builder(final String groupId, final String artifactId,
                                                     final Class<?>... sources) {
         System.setProperty("spring.config.name", getSpringConfigName(groupId, artifactId));
-        System.setProperty("spring.config.additional-location", getSpringConfigLocation(groupId, artifactId));
+        System.setProperty(ADDITIONAL_LOCATION, getSpringConfigLocation(groupId, artifactId));
         System.setProperty("spring.cloud.bootstrap.name", getSpringCloudBootstrapName(groupId, artifactId));
-        System.setProperty("spring.cloud.bootstrap.additional-location", getSpringCloudBootstrapLocation(groupId, artifactId));
+        System.setProperty(BOOTSTRAP_ADDITIONAL_LOCATION, getSpringCloudBootstrapLocation(groupId, artifactId));
         return new SpringApplicationBuilder(sources).bannerMode(Mode.OFF);
     }
 
@@ -42,7 +43,7 @@ public abstract class BootLauncher {
     }
 
     private static String getSpringConfigLocation(final String groupId, final String artifactId) {
-        final List<String> configs = new ArrayList<String>(3);
+        final List<String> configs = new ArrayList<>(3);
         configs.add("optional:file:/etc/" + groupId + "/");
         configs.add("optional:file:${user.home}/." + groupId + "/");
         if (System.getProperty(artifactId + ".config") != null) {
@@ -56,7 +57,7 @@ public abstract class BootLauncher {
     }
 
     private static String getSpringCloudBootstrapLocation(final String groupId, final String artifactId) {
-        final List<String> configs = new ArrayList<String>(3);
+        final List<String> configs = new ArrayList<>(3);
         configs.add("optional:file:/etc/" + groupId + "/");
         configs.add("optional:file:${user.home}/." + groupId + "/");
         if (System.getProperty(artifactId + BOOTSTRAP_POSTFIX + ".config") != null) {
