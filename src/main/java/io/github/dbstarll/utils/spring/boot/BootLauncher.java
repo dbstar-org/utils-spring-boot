@@ -43,12 +43,12 @@ public abstract class BootLauncher {
     private static Map<String, String> config(final String groupId, final String artifactId) {
         notBlank(artifactId, "artifactId is blank");
         final String finalGroupId = StringUtils.isBlank(groupId) || groupId.equals(artifactId) ? null : groupId;
-        return new HashMap<String, String>() {{
-            put(CONFIG_NAME, getConfigName(finalGroupId, artifactId));
-            put(ADDITIONAL_LOCATION, getConfigLocation(finalGroupId, artifactId + ".config"));
-            put(BOOTSTRAP_NAME, getConfigName(bootstrap(finalGroupId), bootstrap(artifactId)));
-            put(BOOTSTRAP_ADDITIONAL_LOCATION, getConfigLocation(finalGroupId, bootstrap(artifactId) + ".config"));
-        }};
+        final Map<String, String> map = new HashMap<>();
+        map.put(CONFIG_NAME, getConfigName(finalGroupId, artifactId));
+        map.put(ADDITIONAL_LOCATION, getConfigLocation(finalGroupId, artifactId + ".config"));
+        map.put(BOOTSTRAP_NAME, getConfigName(bootstrap(finalGroupId), bootstrap(artifactId)));
+        map.put(BOOTSTRAP_ADDITIONAL_LOCATION, getConfigLocation(finalGroupId, bootstrap(artifactId) + ".config"));
+        return map;
     }
 
     private static String getConfigName(final String groupId, final String artifactId) {
