@@ -7,16 +7,27 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.Validate.notBlank;
 
 public abstract class BootLauncher {
     private static final String BOOTSTRAP_POSTFIX = "-bootstrap";
+    private static final String CONFIG_NAME = "spring.config.name";
     private static final String ADDITIONAL_LOCATION = "spring.config.additional-location";
+    private static final String BOOTSTRAP_NAME = "spring.cloud.bootstrap.name";
     private static final String BOOTSTRAP_ADDITIONAL_LOCATION = "spring.cloud.bootstrap.additional-location";
 
     protected final ConfigurableApplicationContext run(final String groupId, final String artifactId,
                                                        final String... args) {
-        return builder(builder(groupId, artifactId, getClass())).run(args);
+        final List<String> argList = config(groupId, artifactId).entrySet().stream()
+                .map(e -> String.format("--%s=%s", e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
+        argList.addAll(Arrays.asList(args));
+        return builder(new SpringApplicationBuilder(getClass())).run(argList.toArray(new String[0]));
     }
 
     /**
@@ -26,43 +37,37 @@ public abstract class BootLauncher {
      * @return 配置后的SpringApplicationBuilder
      */
     protected SpringApplicationBuilder builder(final SpringApplicationBuilder builder) {
-        return builder;
+        return builder.bannerMode(Mode.OFF);
     }
 
-    private static SpringApplicationBuilder builder(final String groupId, final String artifactId,
-                                                    final Class<?>... sources) {
-        System.setProperty("spring.config.name", getSpringConfigName(groupId, artifactId));
-        System.setProperty(ADDITIONAL_LOCATION, getSpringConfigLocation(groupId, artifactId));
-        System.setProperty("spring.cloud.bootstrap.name", getSpringCloudBootstrapName(groupId, artifactId));
-        System.setProperty(BOOTSTRAP_ADDITIONAL_LOCATION, getSpringCloudBootstrapLocation(groupId, artifactId));
-        return new SpringApplicationBuilder(sources).bannerMode(Mode.OFF);
+    private static Map<String, String> config(final String groupId, final String artifactId) {
+        notBlank(artifactId, "artifactId is blank");
+        final String finalGroupId = StringUtils.isBlank(groupId) || groupId.equals(artifactId) ? null : groupId;
+        final Map<String, String> map = new HashMap<>();
+        map.put(CONFIG_NAME, getConfigName(finalGroupId, artifactId));
+        map.put(ADDITIONAL_LOCATION, getConfigLocation(finalGroupId, artifactId + ".config"));
+        map.put(BOOTSTRAP_NAME, getConfigName(bootstrap(finalGroupId), bootstrap(artifactId)));
+        map.put(BOOTSTRAP_ADDITIONAL_LOCATION, getConfigLocation(finalGroupId, bootstrap(artifactId) + ".config"));
+        return map;
     }
 
-    private static String getSpringConfigName(final String groupId, final String artifactId) {
-        return StringUtils.join(Arrays.asList(groupId, artifactId), ',');
+    private static String getConfigName(final String groupId, final String artifactId) {
+        return groupId == null ? artifactId : String.format("%s,%s", groupId, artifactId);
     }
 
-    private static String getSpringConfigLocation(final String groupId, final String artifactId) {
+    private static String getConfigLocation(final String groupId, final String propertyConfig) {
         final List<String> configs = new ArrayList<>(3);
-        configs.add("optional:file:/etc/" + groupId + "/");
-        configs.add("optional:file:${user.home}/." + groupId + "/");
-        if (System.getProperty(artifactId + ".config") != null) {
-            configs.add("${" + artifactId + ".config}");
+        if (groupId != null) {
+            configs.add(String.format("optional:file:/etc/%s/", groupId));
+            configs.add(String.format("optional:file:${user.home}/.%s/", groupId));
+        }
+        if (System.getProperty(propertyConfig) != null) {
+            configs.add(String.format("${%s}", propertyConfig));
         }
         return StringUtils.join(configs, ',');
     }
 
-    private static String getSpringCloudBootstrapName(final String groupId, final String artifactId) {
-        return StringUtils.join(Arrays.asList(groupId + BOOTSTRAP_POSTFIX, artifactId + BOOTSTRAP_POSTFIX), ',');
-    }
-
-    private static String getSpringCloudBootstrapLocation(final String groupId, final String artifactId) {
-        final List<String> configs = new ArrayList<>(3);
-        configs.add("optional:file:/etc/" + groupId + "/");
-        configs.add("optional:file:${user.home}/." + groupId + "/");
-        if (System.getProperty(artifactId + BOOTSTRAP_POSTFIX + ".config") != null) {
-            configs.add("${" + artifactId + BOOTSTRAP_POSTFIX + ".config}");
-        }
-        return StringUtils.join(configs, ',');
+    private static String bootstrap(final String name) {
+        return name == null ? null : (name + BOOTSTRAP_POSTFIX);
     }
 }
